@@ -1,19 +1,7 @@
-==================================================================================
-2019-9月22日 
-	增加了bit32的6个按位操作，增加了string.pack string.unpack 暂时只支持 < I1 I2 I4 I8 fd i1 i2 i4 i8 这几种格式
-==================================================================================
-.. code-block:: lua  	
-	function modSz(k, size)  
-        	return bit32.band((bit32.bnot(k) + 1), (size - 1))  
-	end  
-	print(modSz(3, 8))  
-	s = string.pack("<I8i8", 4, -4)  
-	a, b = string.unpack("<I8i8", s, 1)  
-	print(a, b)  
-	
 ===============================================================================
 GopherLua: VM and compiler for Lua in Go.
 ===============================================================================
+
 
 .. image:: https://godoc.org/github.com/yuin/gopher-lua?status.svg
     :target: http://godoc.org/github.com/yuin/gopher-lua
@@ -38,6 +26,23 @@ programs.
 
 .. contents::
    :depth: 1
+
+----------------------------------------------------------------
+2019-9月22日 
+----------------------------------------------------------------
+增加了bit32的6个按位操作，增加了string.pack string.unpack 暂时只支持 < I1 I2 I4 I8 fd i1 i2 i4 i8 这几种格式
+.. code-block:: lua  	
+	function modSz(k, size)  
+        	return bit32.band((bit32.bnot(k) + 1), (size - 1))  
+	end  
+	
+	print(modSz(3, 8))  -- 5  
+	
+	s = string.pack("<I8i8", 4, -4)  
+	
+	a, b = string.unpack("<I8i8", s, 1)  
+	
+	print(a, b)  -- 4  -4  
 
 ----------------------------------------------------------------
 Design principle
