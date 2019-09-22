@@ -1,10 +1,12 @@
 package lua
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
-	"strings"
-
 	"github.com/yuin/gopher-lua/pm"
+	"io"
+	"strings"
 )
 
 const emptyLString LString = LString("")
@@ -38,7 +40,146 @@ var strFuncs = map[string]LGFunction{
 	"reverse": strReverse,
 	"sub":     strSub,
 	"upper":   strUpper,
+	// -------dgh start ------
+	"pack":    strpack,
+	"unpack":  strunpack,
 }
+
+func _getFmt(ioFmt *bytes.Buffer)(string, error){
+	for {
+		b, err := ioFmt.ReadByte()
+		if err != nil{
+			return "", err
+		}
+		c := fmt.Sprintf("%c", b)
+		switch c {
+		case "f", "d":
+			return c, nil
+		case "I", "i":
+			sz, _ := ioFmt.ReadByte()
+			return fmt.Sprintf("%s%c",c, sz), nil
+		}
+	}
+}
+
+func strpack(L *LState) int {
+	fmt := L.CheckString(1)
+	args := make([]interface{}, L.GetTop()-1)
+	top := L.GetTop()
+	for i := 2; i <= top; i++ {
+		args[i-2] = L.Get(i)
+	}
+	//分析fmt
+	ioBT := bytes.NewBuffer([]byte{})
+	ioFmt := bytes.NewBuffer([]byte(fmt))
+	for j:=0;j<len(args);j++{
+		str, err:= _getFmt(ioFmt)
+		if err == io.EOF {break}
+		switch str {
+		case "I1":
+			binary.Write(ioBT, binary.LittleEndian, uint8(args[j].(LNumber)))
+		case "I2":
+			binary.Write(ioBT, binary.LittleEndian, uint16(args[j].(LNumber)))
+		case "I4":
+			binary.Write(ioBT, binary.LittleEndian, uint32(args[j].(LNumber)))
+		case "I8":
+			binary.Write(ioBT, binary.LittleEndian, uint64(args[j].(LNumber)))
+		case "i1":
+			binary.Write(ioBT, binary.LittleEndian, int8(args[j].(LNumber)))
+		case "i2":
+			binary.Write(ioBT, binary.LittleEndian, int16(args[j].(LNumber)))
+		case "i4":
+			binary.Write(ioBT, binary.LittleEndian, int32(args[j].(LNumber)))
+		case "i8":
+			binary.Write(ioBT, binary.LittleEndian, int64(args[j].(LNumber)))
+		case "f":
+			binary.Write(ioBT, binary.LittleEndian, float32(args[j].(LNumber)))
+		case "d":
+			binary.Write(ioBT, binary.LittleEndian, float64(args[j].(LNumber)))
+		}
+	}
+	s := string(ioBT.Bytes())
+	L.Push(LString(s))
+	return 1
+}
+func strunpack(L *LState) int {
+	fmt := L.CheckString(1)
+	input:= L.CheckString(2)
+	pos := L.OptInt(3, 1)-1
+	_ = L.GetTop()
+	// 分析fmt
+	ioBT := bytes.NewBuffer([]byte(input)[pos:])
+	ioFmt := bytes.NewBuffer([]byte(fmt))
+	var nRet int = 0
+	for {
+		str, err := _getFmt(ioFmt)
+		if err == io.EOF{break}
+		switch str {
+		case "I1":
+			num := uint8(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "I2":
+			num := uint16(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "I4":
+			num := uint32(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "I8":
+			num := uint64(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "i1":
+			num := int8(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "i2":
+			num := int16(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "i4":
+			num := int32(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "i8":
+			num := int64(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "f":
+			num := float32(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		case "d":
+			num := float64(0)
+			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
+				L.Push(LNumber(num))
+				nRet += 1
+			}
+		} //switch ENd
+	}
+	return nRet
+}
+//-------dgh end-------
 
 func strByte(L *LState) int {
 	str := L.CheckString(1)
