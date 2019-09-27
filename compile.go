@@ -125,12 +125,37 @@ func lnumberValue(expr ast.Expr) (LNumber, bool) {
 		if err != nil {
 			lv = LNumber(math.NaN())
 		}
-		return lv, true
+		v, ok := lv.(LNumber)
+		return v, ok
 	} else if ex, ok := expr.(*constLValueExpr); ok {
-		return ex.Value.(LNumber), true
+		switch ex.Value.(type) {
+		case LFloat64:
+			return 0, false
+		case LNumber:
+			return ex.Value.(LNumber), true
+		}
 	}
 	return 0, false
 }
+
+func lfloatValue(expr ast.Expr) (LFloat64, bool) {
+	if ex, ok := expr.(*ast.NumberExpr); ok {
+		lv, err := parseNumber(ex.Value)
+		if err != nil {
+			lv = LNumber(math.NaN())
+		}
+		v, ok := lv.(LFloat64)
+		return v, ok
+	} else if ex, ok := expr.(*constLValueExpr); ok {
+		switch ex.Value.(type) {
+		case LNumber:
+			return 0, false
+		case LFloat64:
+			return ex.Value.(LFloat64), true}
+	}
+	return 0, false
+}
+
 
 /* utilities }}} */
 
@@ -1111,8 +1136,12 @@ func constFold(exp ast.Expr) ast.Expr { // {{{
 		}
 	case *ast.UnaryMinusOpExpr:
 		expr.Expr = constFold(expr.Expr)
+		// dgh这里出错 已更正
 		if value, ok := lnumberValue(expr.Expr); ok {
 			return &constLValueExpr{Value: LNumber(-value)}
+		}
+		if value, ok := lfloatValue(expr.Expr); ok {
+			return &constLValueExpr{Value: LFloat64(-value)}
 		}
 		return expr
 	default:

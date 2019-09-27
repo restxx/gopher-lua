@@ -7,8 +7,8 @@ import (
 
 func OpenMath(L *LState) int {
 	mod := L.RegisterModule(MathLibName, mathFuncs).(*LTable)
-	mod.RawSetString("pi", LNumber(math.Pi))
-	mod.RawSetString("huge", LNumber(math.MaxFloat64))
+	mod.RawSetString("pi", LFloat64(math.Pi))
+	mod.RawSetString("huge", LFloat64(math.MaxFloat64))
 	L.Push(mod)
 	return 1
 }
@@ -46,100 +46,194 @@ var mathFuncs = map[string]LGFunction{
 }
 
 func mathAbs(L *LState) int {
-	L.Push(LNumber(math.Abs(float64(L.CheckNumber(1)))))
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	switch value.(type) {
+	case LFloat64:
+		L.Push(LFloat64(math.Abs(v)))
+	case LNumber:
+		L.Push(LNumber(math.Abs(v)))
+	}
 	return 1
 }
 
 func mathAcos(L *LState) int {
-	L.Push(LNumber(math.Acos(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Acos(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Acos(v)))
 	return 1
 }
 
 func mathAsin(L *LState) int {
-	L.Push(LNumber(math.Asin(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Asin(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Asin(v)))
 	return 1
 }
 
 func mathAtan(L *LState) int {
-	L.Push(LNumber(math.Atan(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Atan(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Atan(v)))
 	return 1
 }
 
 func mathAtan2(L *LState) int {
-	L.Push(LNumber(math.Atan2(float64(L.CheckNumber(1)), float64(L.CheckNumber(2)))))
+	// L.Push(LNumber(math.Atan2(float64(L.CheckNumber(1)), float64(L.CheckNumber(2)))))
+	// return 1
+	value1 := L.CheckNumber(1)
+	v1, _:= value1.assertFloat64()
+	value2 := L.CheckNumber(2)
+	v2, _:= value2.assertFloat64()
+	L.Push(LFloat64(math.Atan2(v1, v2)))
 	return 1
 }
 
 func mathCeil(L *LState) int {
-	L.Push(LNumber(math.Ceil(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Ceil(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Ceil(v)))
 	return 1
 }
 
 func mathCos(L *LState) int {
-	L.Push(LNumber(math.Cos(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Cos(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Cos(v)))
 	return 1
+
 }
 
 func mathCosh(L *LState) int {
-	L.Push(LNumber(math.Cosh(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Cosh(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Cosh(v)))
 	return 1
 }
 
 func mathDeg(L *LState) int {
-	L.Push(LNumber(float64(L.CheckNumber(1)) * 180 / math.Pi))
+	// L.Push(LNumber(float64(L.CheckNumber(1)) * 180 / math.Pi))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(v * 180 / math.Pi))
 	return 1
 }
 
+
 func mathExp(L *LState) int {
-	L.Push(LNumber(math.Exp(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Exp(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Exp(v)))
 	return 1
 }
 
 func mathFloor(L *LState) int {
-	L.Push(LNumber(math.Floor(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Floor(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Floor(v)))
 	return 1
 }
 
 func mathFmod(L *LState) int {
-	L.Push(LNumber(math.Mod(float64(L.CheckNumber(1)), float64(L.CheckNumber(2)))))
+	// L.Push(LNumber(math.Mod(float64(L.CheckNumber(1)), float64(L.CheckNumber(2)))))
+	// return 1
+	value1 := L.CheckNumber(1)
+	v1, _:= value1.assertFloat64()
+	value2 := L.CheckNumber(2)
+	v2, _:= value2.assertFloat64()
+	L.Push(LFloat64(math.Mod(v1, v2)))
 	return 1
 }
 
 func mathFrexp(L *LState) int {
-	v1, v2 := math.Frexp(float64(L.CheckNumber(1)))
-	L.Push(LNumber(v1))
+	// v1, v2 := math.Frexp(float64(L.CheckNumber(1)))
+	// L.Push(LNumber(v1))
+	// L.Push(LNumber(v2))
+	// return 2
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	v1, v2 := math.Frexp(v)
+	L.Push(LFloat64(v1))
 	L.Push(LNumber(v2))
 	return 2
 }
 
 func mathLdexp(L *LState) int {
-	L.Push(LNumber(math.Ldexp(float64(L.CheckNumber(1)), L.CheckInt(2))))
+	// L.Push(LNumber(math.Ldexp(float64(L.CheckNumber(1)), L.CheckInt(2))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	v2 := L.CheckInt(2)
+	L.Push(LFloat64(math.Ldexp(v, v2)))
 	return 1
 }
 
 func mathLog(L *LState) int {
-	L.Push(LNumber(math.Log(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Log(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Log(v)))
 	return 1
 }
 
 func mathLog10(L *LState) int {
-	L.Push(LNumber(math.Log10(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Log10(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Log10(v)))
 	return 1
 }
 
+
+// func mathMax(L *LState) int {
+// 	if L.GetTop() == 0 {
+// 		L.RaiseError("wrong number of arguments")
+// 	}
+// 	max := L.CheckNumber(1)
+// 	top := L.GetTop()
+// 	for i := 2; i <= top; i++ {
+// 		v := L.CheckNumber(i)
+// 		if v > max {
+// 			max = v
+// 		}
+// 	}
+// 	L.Push(max)
+// 	return 1
+// }
 func mathMax(L *LState) int {
-	if L.GetTop() == 0 {
-		L.RaiseError("wrong number of arguments")
-	}
-	max := L.CheckNumber(1)
-	top := L.GetTop()
-	for i := 2; i <= top; i++ {
-		v := L.CheckNumber(i)
-		if v > max {
-			max = v
+		if L.GetTop() == 0 {
+			L.RaiseError("wrong number of arguments")
 		}
-	}
-	L.Push(max)
+		max := L.CheckNumber(1)
+		top := L.GetTop()
+		for i := 2; i <= top; i++ {
+			v := L.CheckNumber(i)
+			mx,_ :=max.assertFloat64()
+			_v, _ := v.assertFloat64()
+			if _v > mx {
+				max = v
+			}
+		}
+		L.Push(max)
 	return 1
 }
 
@@ -147,17 +241,36 @@ func mathMin(L *LState) int {
 	if L.GetTop() == 0 {
 		L.RaiseError("wrong number of arguments")
 	}
-	min := L.CheckNumber(1)
+	max := L.CheckNumber(1)
 	top := L.GetTop()
 	for i := 2; i <= top; i++ {
 		v := L.CheckNumber(i)
-		if v < min {
-			min = v
+		mx,_ :=max.assertFloat64()
+		_v, _ := v.assertFloat64()
+		if _v < mx {
+			max = v
 		}
 	}
-	L.Push(min)
+	L.Push(max)
 	return 1
 }
+
+
+// func mathMin(L *LState) int {
+// 	if L.GetTop() == 0 {
+// 		L.RaiseError("wrong number of arguments")
+// 	}
+// 	min := L.CheckNumber(1)
+// 	top := L.GetTop()
+// 	for i := 2; i <= top; i++ {
+// 		v := L.CheckNumber(i)
+// 		if v < min {
+// 			min = v
+// 		}
+// 	}
+// 	L.Push(min)
+// 	return 1
+// }
 
 func mathMod(L *LState) int {
 	lhs := L.CheckNumber(1)
@@ -167,26 +280,57 @@ func mathMod(L *LState) int {
 }
 
 func mathModf(L *LState) int {
-	v1, v2 := math.Modf(float64(L.CheckNumber(1)))
-	L.Push(LNumber(v1))
-	L.Push(LNumber(v2))
+	// v1, v2 := math.Modf(float64(L.CheckNumber(1)))
+	// L.Push(LNumber(v1))
+	// L.Push(LNumber(v2))
+	// return 2
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	v1, v2 := math.Modf(v)
+	L.Push(LFloat64(v1))
+	L.Push(LFloat64(v2))
 	return 2
 }
 
 func mathPow(L *LState) int {
-	L.Push(LNumber(math.Pow(float64(L.CheckNumber(1)), float64(L.CheckNumber(2)))))
+	// L.Push(LNumber(math.Pow(float64(L.CheckNumber(1)), float64(L.CheckNumber(2)))))
+	// return 1
+	value1 := L.CheckNumber(1)
+	v1, _:= value1.assertFloat64()
+	value2 := L.CheckNumber(2)
+	v2, _:= value2.assertFloat64()
+	L.Push(LFloat64(math.Pow(v1, v2)))
 	return 1
 }
 
 func mathRad(L *LState) int {
-	L.Push(LNumber(float64(L.CheckNumber(1)) * math.Pi / 180))
+// 	L.Push(LNumber(float64(L.CheckNumber(1)) * math.Pi / 180))
+// 	return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(v * math.Pi / 180))
 	return 1
 }
+
+// func mathRandom(L *LState) int {
+// 	switch L.GetTop() {
+// 	case 0:
+// 		L.Push(LNumber(rand.Float64()))
+// 	case 1:
+// 		n := L.CheckInt(1)
+// 		L.Push(LNumber(rand.Intn(n) + 1))
+// 	default:
+// 		min := L.CheckInt(1)
+// 		max := L.CheckInt(2) + 1
+// 		L.Push(LNumber(rand.Intn(max-min) + min))
+// 	}
+// 	return 1
+// }
 
 func mathRandom(L *LState) int {
 	switch L.GetTop() {
 	case 0:
-		L.Push(LNumber(rand.Float64()))
+		L.Push(LFloat64(rand.Float64()))
 	case 1:
 		n := L.CheckInt(1)
 		L.Push(LNumber(rand.Intn(n) + 1))
@@ -198,33 +342,55 @@ func mathRandom(L *LState) int {
 	return 1
 }
 
+
 func mathRandomseed(L *LState) int {
 	rand.Seed(L.CheckInt64(1))
 	return 0
 }
 
+
 func mathSin(L *LState) int {
-	L.Push(LNumber(math.Sin(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Sin(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Sin(v)))
 	return 1
 }
 
 func mathSinh(L *LState) int {
-	L.Push(LNumber(math.Sinh(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Sinh(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Sinh(v)))
 	return 1
 }
 
 func mathSqrt(L *LState) int {
-	L.Push(LNumber(math.Sqrt(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Sqrt(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Sqrt(v)))
 	return 1
 }
 
 func mathTan(L *LState) int {
-	L.Push(LNumber(math.Tan(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Tan(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Tan(v)))
 	return 1
 }
 
 func mathTanh(L *LState) int {
-	L.Push(LNumber(math.Tanh(float64(L.CheckNumber(1)))))
+	// L.Push(LNumber(math.Tanh(float64(L.CheckNumber(1)))))
+	// return 1
+	value := L.CheckNumber(1)
+	v, _:= value.assertFloat64()
+	L.Push(LFloat64(math.Tanh(v)))
 	return 1
 }
 

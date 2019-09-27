@@ -99,7 +99,8 @@ func callGFunction(L *LState, tailcall bool) bool {
 	frame := L.currentFrame
 	gfnret := frame.Fn.GFunction(L)
 	if tailcall {
-		L.currentFrame = L.RemoveCallerFrame()
+		L.stack.Remove(L.stack.Sp() - 2) // remove caller lua function frame
+		L.currentFrame = L.stack.Last()
 	}
 
 	if gfnret < 0 {
@@ -614,9 +615,9 @@ func init() {
 				cf.Pc = 0
 				cf.Base = RA
 				cf.LocalBase = RA + 1
-				cf.ReturnBase = cf.ReturnBase
+				// cf.ReturnBase = cf.ReturnBase
 				cf.NArgs = nargs
-				cf.NRet = cf.NRet
+				// cf.NRet = cf.NRet
 				cf.TailCall++
 				lbase := cf.LocalBase
 				if meta {
@@ -824,6 +825,7 @@ func opArith(L *LState, inst uint32, baseframe *callFrame) int { //OP_ADD, OP_SU
 	if ok1 && ok2 {
 		reg.SetNumber(RA, numberArith(L, opcode, LNumber(v1), LNumber(v2)))
 	} else {
+
 		reg.Set(RA, objectArith(L, opcode, lhs, rhs))
 	}
 	return 0
@@ -857,7 +859,6 @@ func numberArith(L *LState, opcode int, lhs, rhs LNumber) LNumber {
 		return LNumber(math.Pow(flhs, frhs))
 	}
 	panic("should not reach here")
-	return LNumber(0)
 }
 
 func objectArith(L *LState, opcode int, lhs, rhs LValue) LValue {

@@ -13,15 +13,12 @@ const emptyLString LString = LString("")
 
 func OpenString(L *LState) int {
 	var mod *LTable
-	//_, ok := L.G.builtinMts[int(LTString)]
-	//if !ok {
 	mod = L.RegisterModule(StringLibName, strFuncs).(*LTable)
 	gmatch := L.NewClosure(strGmatch, L.NewFunction(strGmatchIter))
 	mod.RawSetString("gmatch", gmatch)
 	mod.RawSetString("gfind", gmatch)
 	mod.RawSetString("__index", mod)
 	L.G.builtinMts[int(LTString)] = mod
-	//}
 	L.Push(mod)
 	return 1
 }
@@ -69,7 +66,7 @@ func strpack(L *LState) int {
 	for i := 2; i <= top; i++ {
 		args[i-2] = L.Get(i)
 	}
-	//分析fmt
+	// 分析fmt
 	ioBT := bytes.NewBuffer([]byte{})
 	ioFmt := bytes.NewBuffer([]byte(fmt))
 	for j:=0;j<len(args);j++{
@@ -77,25 +74,25 @@ func strpack(L *LState) int {
 		if err == io.EOF {break}
 		switch str {
 		case "I1":
-			binary.Write(ioBT, binary.LittleEndian, uint8(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, uint8(args[j].(LNumber)))
 		case "I2":
-			binary.Write(ioBT, binary.LittleEndian, uint16(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, uint16(args[j].(LNumber)))
 		case "I4":
-			binary.Write(ioBT, binary.LittleEndian, uint32(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, uint32(args[j].(LNumber)))
 		case "I8":
-			binary.Write(ioBT, binary.LittleEndian, uint64(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, uint64(args[j].(LNumber)))
 		case "i1":
-			binary.Write(ioBT, binary.LittleEndian, int8(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, int8(args[j].(LNumber)))
 		case "i2":
-			binary.Write(ioBT, binary.LittleEndian, int16(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, int16(args[j].(LNumber)))
 		case "i4":
-			binary.Write(ioBT, binary.LittleEndian, int32(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, int32(args[j].(LNumber)))
 		case "i8":
-			binary.Write(ioBT, binary.LittleEndian, int64(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, int64(args[j].(LNumber)))
 		case "f":
-			binary.Write(ioBT, binary.LittleEndian, float32(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, float32(args[j].(LFloat64)))
 		case "d":
-			binary.Write(ioBT, binary.LittleEndian, float64(args[j].(LNumber)))
+			_ = binary.Write(ioBT, binary.LittleEndian, float64(args[j].(LFloat64)))
 		}
 	}
 	s := string(ioBT.Bytes())
@@ -166,20 +163,20 @@ func strunpack(L *LState) int {
 		case "f":
 			num := float32(0)
 			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
-				L.Push(LNumber(num))
+				L.Push(LFloat64(num))
 				nRet += 1
 			}
 		case "d":
 			num := float64(0)
 			if err := binary.Read(ioBT, binary.LittleEndian, &num); err == nil{
-				L.Push(LNumber(num))
+				L.Push(LFloat64(num))
 				nRet += 1
 			}
-		} //switch ENd
+		} // switch ENd
 	}
 	return nRet
 }
-//-------dgh end-------
+// -------dgh end-------
 
 func strByte(L *LState) int {
 	str := L.CheckString(1)

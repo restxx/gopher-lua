@@ -49,10 +49,10 @@ var baseFuncs = map[string]LGFunction{
 	"unpack":         baseUnpack,
 	"xpcall":         baseXPCall,
 	// loadlib
-	"module":         loModule,
-	"require":        loRequire,
+	"module":  loModule,
+	"require": loRequire,
 	// hidden features
-	"newproxy":       baseNewProxy,
+	"newproxy": baseNewProxy,
 }
 
 func baseAssert(L *LState) int {

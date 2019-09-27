@@ -35,13 +35,23 @@ func (ls *LState) CheckInt64(n int) int64 {
 	return 0
 }
 
-func (ls *LState) CheckNumber(n int) LNumber {
+func (ls *LState) CheckNumber(n int) LValue {
 	v := ls.Get(n)
-	if lv, ok := v.(LNumber); ok {
+	// if lv, ok := v.(LNumber); ok {
+	// 	return lv
+	// }
+	// ls.TypeError(n, LTNumber)
+	// return 0
+	switch v.(type) {
+	case LNumber:
+		lv, _ := v.(LNumber)
+		return lv
+	case LFloat64:
+		lv, _ := v.(LFloat64)
 		return lv
 	}
 	ls.TypeError(n, LTNumber)
-	return 0
+	return LNumber(0)
 }
 
 func (ls *LState) CheckString(n int) string {
